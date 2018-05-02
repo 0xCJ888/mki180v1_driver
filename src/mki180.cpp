@@ -16,6 +16,13 @@ void mki180::readReg(uint8_t pRead, uint8_t* data){
      *data = spi.write(pRead);
 }
 
+void mki180::setCTRL_REG1(uint8_t pWrite, uint8_t pRead){
+    cs = 1;
+    cs = 0;
+    spi.write(pWrite);
+    spi.write(pRead);
+}
+
 uint16_t mki180::readAxisReg(uint8_t hAddr, uint8_t lAddr){
     uint8_t MSB;
     uint8_t LSB;
