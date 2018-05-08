@@ -892,7 +892,7 @@ LD_SYS_LIBS :=-Wl,--start-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys  -Wl,--e
 .PHONY: all lst size
 
 
-all: $(PROJECT).bin $(PROJECT).hex size
+all: $(PROJECT).bin $(PROJECT).hex size copy
 
 
 .s.o:
@@ -938,6 +938,8 @@ $(PROJECT).bin: $(PROJECT).elf
 $(PROJECT).hex: $(PROJECT).elf
 	$(ELF2BIN) -O ihex $< $@
 
+copy: $(PROJECT).bin
+	cp $(PROJECT).bin E:\$(PROJECT).bin
 
 # Rules
 ###############################################################################

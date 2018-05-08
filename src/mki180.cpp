@@ -16,10 +16,8 @@ void mki180::readReg(uint8_t pRead, uint8_t* data){
      *data = spi.write(pRead);
 }
 
-void mki180::setCTRL_REG1(uint8_t pWrite, uint8_t pRead){
-    cs = 1;
-    cs = 0;
-    spi.write(pWrite);
+void mki180::setCTRL(uint8_t pWrite, uint8_t pRead){
+    this->writeReg(pWrite);
     spi.write(pRead);
 }
 
@@ -34,7 +32,10 @@ uint16_t mki180::readAxisReg(uint8_t hAddr, uint8_t lAddr){
 }
 
 float mki180::fromLSB2mg(uint16_t LSB){
-    return LIS3DHH_FROM_LSB_TO_mg(LSB) - 2500; 
+    if(LSB > 0x8000)
+        return (LIS3DHH_FROM_LSB_TO_mg(LSB) - 5000) / 1000.0f;
+    else
+        return LIS3DHH_FROM_LSB_TO_mg(LSB) / 1000.0f; 
 }
 
 uint8_t mki180::getwhoami(void){
@@ -50,5 +51,12 @@ void mki180::get3axisdata(ThreeAxis* threeAxis){
     threeAxis->yda = this->readAxisReg(LIS3DHH_OUT_Y_H_XL | LIS3DHH_REGISTER_READ, LIS3DHH_OUT_X_L_XL | LIS3DHH_REGISTER_READ);
     threeAxis->y = this->fromLSB2mg(threeAxis->yda);
     threeAxis->zda = this->readAxisReg(LIS3DHH_OUT_Z_H_XL | LIS3DHH_REGISTER_READ, LIS3DHH_OUT_Z_L_XL | LIS3DHH_REGISTER_READ);
-    threeAxis->z = this->fromLSB2mg(threeAxis->xda);
+    threeAxis->z = this->fromLSB2mg(threeAxis->zda);
+}
+
+bool mki180::getStaus(){
+    uint8_t status;
+    this->writeReg(LIS3DHH_STAUS);
+    this->readReg(ReadAddr, &status);
+    return (status & LIS3DHH_STATUS_ZYXDA) >> 3 ? true : false;
 }
